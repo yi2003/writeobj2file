@@ -236,9 +236,10 @@ namespace WriteObj2File
            //testWrite();
             //TestRead();
 
-           // TestWritebytes();
+           //TestWritebytes();
 
             TestReadbytes();
+            Console.Read();
         }
 
 
@@ -249,6 +250,7 @@ namespace WriteObj2File
             var readStream = new BufferedStream(fileStream);
             var tool = new ObjFileTool(readStream);
 
+            readStream.Position = 26;
             var request = tool.ReadFromStreamByBytes(readStream);
 
 
