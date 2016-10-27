@@ -14,13 +14,16 @@ namespace WriteObj2File
     {
         private BinaryWriter writer;
 
+        private Stream stream;
 
         public ObjFileTool(Stream stream)
         {
+            this.stream = stream;
             writer = new BinaryWriter(stream);
+            
         }
 
-        public PullMessageRequest ReadFromStream(Stream stream)
+        public PullMessageRequest ReadFromStream()
         {
             using (var reader = new BinaryReader(stream))
             {
@@ -37,7 +40,7 @@ namespace WriteObj2File
         }
 
 
-        public PullMessageRequest ReadFromStreamByPosition(long position, Stream stream)
+        public PullMessageRequest ReadFromStreamByPosition(long position)
         {
             stream.Position = position;
             using (var reader = new BinaryReader(stream))
@@ -54,7 +57,7 @@ namespace WriteObj2File
             }
         }
 
-        public MessageRequest ReadFromStreamByBytes(Stream stream)
+        public MessageRequest ReadFromStreamByBytes()
         {
             var r = new MessageRequest();
             using (var reader = new BinaryReader(stream))
@@ -195,10 +198,15 @@ namespace WriteObj2File
     public class MessageRequest
     {
         public int Id { get; set; }
+
         public string ConsumerId { get; set; }
+
         public string ConsumerGroup { get; set; }
+
         public long Position
- { get; set; }
+        {
+            get; set;
+        }
     }
 
     public class PullMessageRequest
@@ -251,7 +259,7 @@ namespace WriteObj2File
             var tool = new ObjFileTool(readStream);
 
             readStream.Position = 26;
-            var request = tool.ReadFromStreamByBytes(readStream);
+            var request = tool.ReadFromStreamByBytes();
 
 
             Console.WriteLine(request.Id);
@@ -306,7 +314,7 @@ namespace WriteObj2File
             var readStream= new BufferedStream(fileStream);
             var tool = new ObjFileTool(readStream);
 
-            var request = tool.ReadFromStreamByPosition(51,readStream);
+            var request = tool.ReadFromStreamByPosition(51);
 
 
             Console.WriteLine(request.Id);
