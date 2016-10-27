@@ -39,23 +39,14 @@ namespace WriteObj2File
 
         public void Write2Stream(PullMessageRequest request)
         {
-
-            //consumerid
-            var consumerIdBytes = Encoding.UTF8.GetBytes(request.ConsumerId);
-            writer.Write(consumerIdBytes.Length);
-            writer.Write(consumerIdBytes);
-
-
-            //consumer group
-            var consumerGroupBytes = Encoding.UTF8.GetBytes(request.ConsumerGroup);
-            writer.Write(consumerGroupBytes.Length);
-            writer.Write(consumerGroupBytes);
-
-
-            //queque v1
-            //var v1 = Encoding.UTF8.GetBytes(request.MessageQueue.V1);
-            //writer.Write(consumerGroupBytes.Length);
-            //writer.Write(consumerGroupBytes);
+            writer.Write(request.ConsumerId);
+            writer.Write(request.ConsumerGroup);
+            writer.Write(request.MessageQueue.v1);
+            writer.Write(request.MessageQueue.v2);
+            writer.Write(request.MessageQueue.v3);
+            writer.Write(request.Tags);
+            writer.Write(request.QueueOffset);
+            writer.Write(request.SuspendPullRequestMilliseconds);
 
 
 
@@ -83,9 +74,9 @@ namespace WriteObj2File
 
     public class MessageQueue
     {
-        protected string v1;
-        private string v2;
-        private int v3;
+        public string v1 { get; set; }
+        public string v2 { get; set; }
+        public int v3 { get; set; }
 
         public MessageQueue(string v1, string v2, int v3)
         {
@@ -101,10 +92,26 @@ namespace WriteObj2File
         {
             //test1();
 
-            test2();
+           // testWrite();
+            TestRead();
         }
 
-        private static void test2()
+        private static void TestRead()
+        {
+            
+            var fileStream = new FileStream("test.txt", FileMode.Open);
+            var readStream= new BufferedStream(fileStream);
+
+            var tool = new ObjFileTool(readStream);
+
+            var request = tool.ReadFromStream(readStream);
+
+            Console.WriteLine(request.ConsumerId);
+            Console.WriteLine(request.MessageQueue.v1);
+
+        }
+
+        private static void testWrite()
         {
             var fileStream = new FileStream("test.txt", FileMode.Append);
             Console.WriteLine("p1:"+fileStream.Position);
@@ -115,7 +122,11 @@ namespace WriteObj2File
             requests.Add(new PullMessageRequest()
             {
                 ConsumerId = "aaaa",
-                ConsumerGroup = "dddd"
+                ConsumerGroup = "dddd",
+                MessageQueue = new MessageQueue("hello","world",233),
+                QueueOffset = 100,
+                SuspendPullRequestMilliseconds = 2000,
+                Tags = "Tags"
             });
             foreach (var r in requests)
             {
